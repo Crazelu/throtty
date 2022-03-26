@@ -1,5 +1,6 @@
 package tech.devcrazelu.url_shortener.repositories;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 import tech.devcrazelu.url_shortener.models.ShortenedUrl;
 import java.sql.*;
@@ -9,7 +10,8 @@ import java.util.logging.Logger;
 
 @Repository
 public class UrlRepository {
-    static final String url = "";
+    @Value("${datasource.url}")
+    private String url;
 
     public boolean createShortUrl(String shortUrl, String longUrl, String userId){
         boolean created = false;

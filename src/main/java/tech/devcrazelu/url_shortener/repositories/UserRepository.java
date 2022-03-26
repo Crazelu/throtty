@@ -1,5 +1,6 @@
 package tech.devcrazelu.url_shortener.repositories;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import tech.devcrazelu.url_shortener.models.AppUser;
@@ -10,7 +11,8 @@ import java.util.logging.Logger;
 
 @Repository
 public class UserRepository {
-    static final String url = "";
+    @Value("${datasource.url}")
+    private String url;
 
     public boolean createUser(AppUser user){
         boolean created = false;
