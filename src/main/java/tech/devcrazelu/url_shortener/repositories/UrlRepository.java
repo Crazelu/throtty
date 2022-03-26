@@ -2,7 +2,6 @@ package tech.devcrazelu.url_shortener.repositories;
 
 import org.springframework.stereotype.Repository;
 import tech.devcrazelu.url_shortener.models.ShortenedUrl;
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.logging.Level;

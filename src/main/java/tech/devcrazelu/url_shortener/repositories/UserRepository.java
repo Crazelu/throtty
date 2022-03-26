@@ -3,7 +3,6 @@ package tech.devcrazelu.url_shortener.repositories;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import tech.devcrazelu.url_shortener.models.AppUser;
-
 import java.sql.*;
 import java.util.UUID;
 import java.util.logging.Level;

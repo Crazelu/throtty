@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tech.devcrazelu.url_shortener.models.ShortenedUrl;
 import tech.devcrazelu.url_shortener.repositories.UrlRepository;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -21,10 +20,12 @@ public class UrlService {
 
         boolean created = false;
         String shortUrl = null;
+        int tries = 10;
 
-        while(!created){
+        while(!created && tries>0){
              shortUrl = shortenUrl();
             created = urlRepository.createShortUrl(shortUrl, longUrl, userId.toString());
+            tries--;
         }
         return shortUrl;
     }

@@ -2,7 +2,6 @@ package tech.devcrazelu.url_shortener.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import tech.devcrazelu.url_shortener.models.AppUser;
@@ -83,7 +82,7 @@ public class UserController {
         return new ApiResponse("User not found");
     }
 
-    @PostMapping("/deleteUser")
+    @DeleteMapping("/deleteUser")
     public ApiResponse deleteUser(){
         UUID id = authUtil.getAuthenticatedUserId();
         boolean deleted = userService.deleteUser(id);
