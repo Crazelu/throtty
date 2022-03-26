@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 @Repository
 public class UrlRepository {
-    static final String url = "jdbc:mysql://localhost:3306/urlshortenerdb?user=root&password=897$312Game&autoReconnect=true&useSSL=false";
+    static final String url = "";
 
     public boolean createShortUrl(String shortUrl, String longUrl, String userId){
         boolean created = false;
