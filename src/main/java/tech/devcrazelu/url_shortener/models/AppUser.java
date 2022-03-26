@@ -5,6 +5,11 @@ import java.util.UUID;
 public class AppUser {
     private  UUID id;
     String email;
+
+    public String getPassword() {
+        return password;
+    }
+
     String password;
 
     public void setPassword(String password) {
@@ -18,12 +23,6 @@ public class AppUser {
     public String getEmail() {
         return email;
     }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public AppUser() {}
 
     public AppUser(String email, String password){
         this.email = email;

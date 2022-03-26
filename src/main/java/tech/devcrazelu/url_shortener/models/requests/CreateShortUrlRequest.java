@@ -1,19 +1,11 @@
 package tech.devcrazelu.url_shortener.models.requests;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CreateShortUrlRequest {
-    private String longUrl;
-    private String userId;
+    public String longUrl;
 
-    public CreateShortUrlRequest(String longUrl, String userId) {
+    public CreateShortUrlRequest(@JsonProperty("longUrl") String longUrl) {
         this.longUrl = longUrl;
-        this.userId = userId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public String getLongUrl() {
-        return longUrl;
     }
 }

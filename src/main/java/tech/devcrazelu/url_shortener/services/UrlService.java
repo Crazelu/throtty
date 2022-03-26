@@ -17,6 +17,8 @@ public class UrlService {
     private UrlRepository urlRepository;
 
     public String createShortUrl(String longUrl, UUID userId){
+        if(longUrl.isEmpty())return null;
+
         boolean created = false;
         String shortUrl = null;
 

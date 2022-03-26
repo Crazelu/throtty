@@ -1,5 +1,6 @@
 package tech.devcrazelu.url_shortener.repositories;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import tech.devcrazelu.url_shortener.models.AppUser;
 
@@ -54,6 +55,7 @@ public class UserRepository {
       UUID userId = null;
       Connection connection = null;
       PreparedStatement ps = null;
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
       try{
           connection = DriverManager.getConnection(url);
@@ -68,7 +70,7 @@ public class UserRepository {
 
         while(result.next()){
             String retrievedPassword = result.getString("password");
-            if(retrievedPassword.equals(password)){
+            if(encoder.matches(password, retrievedPassword)){
                 userId = UUID.fromString(result.getString("id"));
             }
         }
@@ -98,14 +100,15 @@ public class UserRepository {
 
         try{
             connection = DriverManager.getConnection(url);
-            final String query = "select email from `users` where id = ?";
+            final String query = "select email, password from `users` where id = ?";
             ps = connection.prepareStatement(query);
             ps.setString(1, id);
             ResultSet result = ps.executeQuery();
 
             while(result.next()){
                 String email = result.getString("email");
-                user = new AppUser(UUID.fromString(id), email);
+                String password = result.getString("password");
+                user = new AppUser(UUID.fromString(id), email, password);
             }
 
         } catch(Exception e){
