@@ -12,8 +12,6 @@ import tech.devcrazelu.url_shortener.services.UserService;
 import tech.devcrazelu.url_shortener.utils.AuthUtil;
 import tech.devcrazelu.url_shortener.utils.JwtUtil;
 
-import java.util.UUID;
-
 @RestController
 public class UserController {
 
@@ -30,11 +28,11 @@ public class UserController {
     @PostMapping("/createAccount")
     public ApiResponse createAccount(@RequestBody AuthRequest request){
        AppUser user = userService.createUser(request.email, request.password);
-        String token = jwtUtil.generateToken(user.getId().toString());
+        String token = jwtUtil.generateToken(String.valueOf(user.getId()));
         if(user != null ){
             try{
                 authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(user.getId().toString(), request.password));
+                        new UsernamePasswordAuthenticationToken(String.valueOf(user.getId()), request.password));
             }catch(Exception e){
                 return new ApiResponse(true, token,"Login to continue");
             }
@@ -45,16 +43,16 @@ public class UserController {
 
     @PostMapping("/login")
     public ApiResponse login(@RequestBody AuthRequest request){
-        UUID id =  userService.verifyCredentials(request.email, request.password);
+        int id =  userService.verifyCredentials(request.email, request.password);
 
         try{
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(id.toString(), request.password));
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(String.valueOf(id), request.password));
         }catch(Exception e){
             return new ApiResponse(e.getMessage());
         }
 
-        String token = jwtUtil.generateToken(id.toString());
-        if(id != null && token != null){
+        String token = jwtUtil.generateToken(String.valueOf(id));
+        if(id != -1 && token != null){
             return new ApiResponse(true, token);
         }
         return new ApiResponse("Invalid credentials");
@@ -76,15 +74,15 @@ public class UserController {
 
     @GetMapping("/user")
     public ApiResponse getUser(){
-        UUID id = authUtil.getAuthenticatedUserId();
+        int id = authUtil.getAuthenticatedUserId();
         AppUser user = userService.getUser(id);
-        if (user != null) return new ApiResponse(true, user);
+        if (user != null) return new ApiResponse(true, new AppUser(user.getId(), user.getEmail()));
         return new ApiResponse("User not found");
     }
 
     @DeleteMapping("/deleteUser")
     public ApiResponse deleteUser(){
-        UUID id = authUtil.getAuthenticatedUserId();
+        int id = authUtil.getAuthenticatedUserId();
         boolean deleted = userService.deleteUser(id);
         if (deleted) return new ApiResponse(true, "User deleted");
         return new ApiResponse("User not found");

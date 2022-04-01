@@ -5,18 +5,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 public class AuthUtil {
 
-    public UUID getAuthenticatedUserId(){
-        String userId = null;
+    public int getAuthenticatedUserId(){
+        int userId = -1;
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
-            userId = authentication.getName();
-            return UUID.fromString(userId);
+            userId = Integer.decode(authentication.getName());
         }
-        return null;
+        return userId;
     }
 }

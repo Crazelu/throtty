@@ -8,9 +8,7 @@ import tech.devcrazelu.url_shortener.models.requests.CreateShortUrlRequest;
 import tech.devcrazelu.url_shortener.models.responses.ApiResponse;
 import tech.devcrazelu.url_shortener.services.UrlService;
 import tech.devcrazelu.url_shortener.utils.AuthUtil;
-
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 public class UrlController {
@@ -33,7 +31,7 @@ public class UrlController {
         return redirectView;
     }
 
-    @GetMapping("getShortUrl/{shortUrl}")
+    @GetMapping("getLongUrl/{shortUrl}")
     public ApiResponse getShortUrl(@PathVariable String shortUrl){
             String longUrl = urlService.getLongUrl(shortUrl);
             if (longUrl != null) return new ApiResponse(true, longUrl);
@@ -42,7 +40,7 @@ public class UrlController {
 
     @PostMapping("/createShortUrl")
     public ApiResponse createShortUrl(@RequestBody CreateShortUrlRequest request){
-        UUID userId = authUtil.getAuthenticatedUserId();
+        int userId = authUtil.getAuthenticatedUserId();
         String shortUrl = urlService.createShortUrl(request.longUrl, userId);
         if (shortUrl != null) return new ApiResponse(true, shortUrl);
         return new ApiResponse("Unable to shorten " + request.longUrl);
@@ -50,7 +48,7 @@ public class UrlController {
 
     @GetMapping("/getShortUrls")
     public ApiResponse getShortenedUrlsForUser(){
-        UUID userId = authUtil.getAuthenticatedUserId();
+        int userId = authUtil.getAuthenticatedUserId();
         List<ShortenedUrl> shortenedUrls = urlService.getShortenedUrls(userId);
         if (shortenedUrls != null) return new ApiResponse(true, shortenedUrls);
         return new ApiResponse("Unable to retrieve your short urls");

@@ -9,9 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import tech.devcrazelu.url_shortener.models.AppUser;
 import tech.devcrazelu.url_shortener.repositories.UserRepository;
-
 import java.util.ArrayList;
-import java.util.UUID;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -28,16 +26,20 @@ public class UserService implements UserDetailsService {
 
     public AppUser createUser(String email, String password){
         String hashedPassword =encodePassword(password);
-        AppUser user = new AppUser(UUID.randomUUID(), email, hashedPassword);
+        AppUser user = new AppUser(email, hashedPassword);
         boolean created =  userRepository.createUser(user);
         return created? user: null;
     }
 
-    public AppUser getUser(UUID id){
-        return userRepository.getUserById(id.toString());
+    private AppUser findUserByEmail(String email){
+        return userRepository.findUserByEmail(email);
     }
 
-  public boolean updateUser(UUID id, String password){
+    public AppUser getUser(int id){
+        return userRepository.getUserById(id);
+    }
+
+  public boolean updateUser(int id, String password){
         String hashedPassword = encodePassword(password);
         AppUser user = getUser(id);
 
@@ -45,12 +47,12 @@ public class UserService implements UserDetailsService {
         return userRepository.updateUser(user);
     }
 
-  public  boolean deleteUser(UUID id){
-       return userRepository.deleteUser(id.toString());
+  public  boolean deleteUser(int id){
+       return userRepository.deleteUser(id);
     }
 
-   public UUID verifyCredentials(String email, String password){
-      UUID id = userRepository.findUserByEmailAndPassword(email, password);
+   public int verifyCredentials(String email, String password){
+      int id = userRepository.findUserByEmailAndPassword(email, password);
         return id;
     }
 
@@ -70,15 +72,17 @@ public class UserService implements UserDetailsService {
 
     public boolean setNewPassword(String email, String password, int otp){
        if (isOtpValid(otp)){
-           //todo: update user record in db
-           return true;
+          AppUser user = findUserByEmail(email);
+          if(user!= null)
+           return updateUser(user.getId(), password);
         }
        return false;
     }
 
     @Override
     public UserDetails loadUserByUsername(String id) throws UsernameNotFoundException {
-        AppUser user = getUser(UUID.fromString(id));
-        return new User(user.getId().toString(), user.getPassword(), new ArrayList<>());
+        AppUser user = getUser(Integer.decode(id));
+        if(user==null) throw new UsernameNotFoundException("Account not found");
+        return new User(String.valueOf(user.getId()), user.getPassword(), new ArrayList<>());
     }
 }

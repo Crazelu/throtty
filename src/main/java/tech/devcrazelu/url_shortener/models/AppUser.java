@@ -1,9 +1,7 @@
 package tech.devcrazelu.url_shortener.models;
 
-import java.util.UUID;
-
 public class AppUser {
-    private  UUID id;
+    private  int id;
     String email;
 
     public String getPassword() {
@@ -16,7 +14,7 @@ public class AppUser {
         this.password = password;
     }
 
-    public UUID getId() {
+    public int getId() {
         return id;
     }
 
@@ -29,13 +27,13 @@ public class AppUser {
         this.password = password;
     }
 
-    public AppUser(UUID id, String email, String password){
+    public AppUser(int id, String email, String password){
         this.id = id;
         this.email = email;
         this.password = password;
     }
 
-    public AppUser(UUID id, String email){
+    public AppUser(int id, String email){
         this.id = id;
         this.email = email;
     }

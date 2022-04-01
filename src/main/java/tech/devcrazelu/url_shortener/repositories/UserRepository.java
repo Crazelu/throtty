@@ -5,7 +5,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import tech.devcrazelu.url_shortener.models.AppUser;
 import java.sql.*;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,13 +20,12 @@ public class UserRepository {
 
         try{
             connection = DriverManager.getConnection(url);
-           final String query = "insert into users values (?, ?, ?)";
+           final String query = "insert into users (email, password) values (?, ?)";
 
            ps = connection.prepareStatement(query);
 
-           ps.setString(1,user.getId().toString());
+           ps.setString(1,user.getEmail());
            ps.setString(2,user.getPassword());
-           ps.setString(3,user.getEmail());
 
           ps.execute();
          created = ps.getUpdateCount() == 1;
@@ -52,8 +50,8 @@ public class UserRepository {
 
     }
 
-    public UUID findUserByEmailAndPassword(String email, String password){
-      UUID userId = null;
+    public int findUserByEmailAndPassword(String email, String password){
+      int userId = -1;
       Connection connection = null;
       PreparedStatement ps = null;
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
@@ -72,7 +70,7 @@ public class UserRepository {
         while(result.next()){
             String retrievedPassword = result.getString("password");
             if(encoder.matches(password, retrievedPassword)){
-                userId = UUID.fromString(result.getString("id"));
+                userId = result.getInt("id");
             }
         }
 
@@ -94,7 +92,7 @@ public class UserRepository {
       return userId;
   }
 
-    public AppUser getUserById(String id){
+    public AppUser getUserById(int id){
         AppUser user = null;
         Connection connection = null;
         PreparedStatement ps = null;
@@ -103,13 +101,13 @@ public class UserRepository {
             connection = DriverManager.getConnection(url);
             final String query = "select email, password from `users` where id = ?";
             ps = connection.prepareStatement(query);
-            ps.setString(1, id);
+            ps.setInt(1, id);
             ResultSet result = ps.executeQuery();
 
             while(result.next()){
                 String email = result.getString("email");
                 String password = result.getString("password");
-                user = new AppUser(UUID.fromString(id), email, password);
+                user = new AppUser(id, email, password);
             }
 
         } catch(Exception e){
@@ -130,7 +128,7 @@ public class UserRepository {
         return user;
     }
 
-    public boolean deleteUser(String id){
+    public boolean deleteUser(int id){
         Connection connection = null;
         PreparedStatement ps = null;
         boolean deleted = false;
@@ -140,7 +138,7 @@ public class UserRepository {
             final String query = "delete from `users` where id = ?";
 
             ps = connection.prepareStatement(query);
-            ps.setString(1, id);
+            ps.setInt(1, id);
 
             ps.execute();
             deleted = ps.getUpdateCount() == 1;
@@ -175,7 +173,7 @@ public class UserRepository {
                     "where id = ?";
             ps = connection.prepareStatement(query);
             ps.setString(1, user.getPassword());
-            ps.setString(2, user.getId().toString());
+            ps.setInt(2, user.getId());
 
             ps.execute();
             updated = ps.getUpdateCount()==1;
@@ -196,5 +194,42 @@ public class UserRepository {
             }
         }
         return updated;
+    }
+
+
+    public AppUser findUserByEmail(String email){
+        AppUser user = null;
+        Connection connection = null;
+        PreparedStatement ps = null;
+
+        try{
+            connection = DriverManager.getConnection(url);
+            final String query = "select id, password from `users` where email = ?";
+            ps = connection.prepareStatement(query);
+            ps.setString(1, email);
+            ResultSet result = ps.executeQuery();
+
+            while(result.next()){
+                int id = result.getInt("id");
+                String password = result.getString("password");
+                user = new AppUser(id, email, password);
+            }
+
+        } catch(Exception e){
+            Logger.getAnonymousLogger().log(Level.WARNING, e.getMessage());
+        }finally {
+            if (ps != null) {
+                try {
+                    ps.close();
+                } catch (Exception ignored) {
+                }
+            }
+            try{
+                connection.close();
+            }catch(Exception e){
+                Logger.getAnonymousLogger().log(Level.WARNING, e.getMessage());
+            }
+        }
+        return user;
     }
 }

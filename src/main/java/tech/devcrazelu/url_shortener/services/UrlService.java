@@ -7,7 +7,6 @@ import tech.devcrazelu.url_shortener.repositories.UrlRepository;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class UrlService {
@@ -15,7 +14,7 @@ public class UrlService {
     @Autowired
     private UrlRepository urlRepository;
 
-    public String createShortUrl(String longUrl, UUID userId){
+    public String createShortUrl(String longUrl, int userId){
         if(longUrl.isEmpty())return null;
 
         boolean created = false;
@@ -24,7 +23,7 @@ public class UrlService {
 
         while(!created && tries>0){
              shortUrl = shortenUrl();
-            created = urlRepository.createShortUrl(shortUrl, longUrl, userId.toString());
+            created = urlRepository.createShortUrl(shortUrl, longUrl, userId);
             tries--;
         }
         return shortUrl;
@@ -38,8 +37,8 @@ public class UrlService {
         return urlRepository.deleteShortUrl(shortUrl);
     }
 
-    public List<ShortenedUrl> getShortenedUrls(UUID userId){
-        return urlRepository.getShortUrlsForUser(userId.toString());
+    public List<ShortenedUrl> getShortenedUrls(int userId){
+        return urlRepository.getShortUrlsForUser(userId);
     }
 
     public void updateClickCount(String shortUrl){

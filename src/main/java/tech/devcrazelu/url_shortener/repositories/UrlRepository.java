@@ -13,7 +13,7 @@ public class UrlRepository {
     @Value("${datasource.url}")
     private String url;
 
-    public boolean createShortUrl(String shortUrl, String longUrl, String userId){
+    public boolean createShortUrl(String shortUrl, String longUrl, int userId){
         boolean created = false;
         Connection connection = null;
         PreparedStatement ps = null;
@@ -26,7 +26,7 @@ public class UrlRepository {
             ps.setString(1, shortUrl);
             ps.setString(2, longUrl);
             ps.setInt(3, 0);
-            ps.setString(4, userId);
+            ps.setInt(4, userId);
 
             ps.execute();
             created = ps.getUpdateCount() == 1;
@@ -181,7 +181,7 @@ public class UrlRepository {
         }
     }
 
-    public ArrayList<ShortenedUrl> getShortUrlsForUser(String userId){
+    public ArrayList<ShortenedUrl> getShortUrlsForUser(int userId){
         Connection connection = null;
         PreparedStatement ps = null;
         ArrayList<ShortenedUrl> shortenedUrls = new ArrayList<>();
@@ -189,7 +189,7 @@ public class UrlRepository {
             final String query = "select * from `urls` where userId = ?";
             connection = DriverManager.getConnection(url);
             ps = connection.prepareStatement(query);
-            ps.setString(1, userId);
+            ps.setInt(1, userId);
 
             ResultSet result = ps.executeQuery();
 
