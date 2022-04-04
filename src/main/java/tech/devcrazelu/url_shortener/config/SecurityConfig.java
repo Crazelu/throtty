@@ -11,7 +11,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import tech.devcrazelu.url_shortener.filters.ExceptionHandlingFilter;
 import tech.devcrazelu.url_shortener.filters.JwtRequestFilter;
+import tech.devcrazelu.url_shortener.filters.RequestValidationFilter;
 import tech.devcrazelu.url_shortener.services.UserService;
 
 @EnableWebSecurity
@@ -20,6 +22,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private UserService userService;
     @Autowired
     private JwtRequestFilter jwtFilter;
+    @Autowired
+    private RequestValidationFilter validationFilter;
+    @Autowired
+    private ExceptionHandlingFilter exceptionHandlingFilter;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -41,7 +47,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
             http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(validationFilter, JwtRequestFilter.class);
+        http.addFilterBefore(exceptionHandlingFilter, RequestValidationFilter.class);
+
     }
 
     @Bean

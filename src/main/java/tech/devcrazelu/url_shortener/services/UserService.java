@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import tech.devcrazelu.url_shortener.exceptions.ResourceCreationException;
+import tech.devcrazelu.url_shortener.exceptions.ResourceNotFoundException;
 import tech.devcrazelu.url_shortener.models.AppUser;
 import tech.devcrazelu.url_shortener.repositories.UserRepository;
 import java.util.ArrayList;
@@ -28,15 +30,16 @@ public class UserService implements UserDetailsService {
         String hashedPassword =encodePassword(password);
         AppUser user = new AppUser(email, hashedPassword);
         boolean created =  userRepository.createUser(user);
-        return created? user: null;
+        if(!created) throw new ResourceCreationException("Account creation failed");
+        return user;
     }
 
     private AppUser findUserByEmail(String email){
-        return userRepository.findUserByEmail(email);
+        return userRepository.findUserByEmail(email).orElseThrow(()-> new ResourceNotFoundException("User not found"));
     }
 
     public AppUser getUser(int id){
-        return userRepository.getUserById(id);
+        return userRepository.getUserById(id).orElseThrow(()-> new ResourceNotFoundException("User not found"));
     }
 
   public boolean updateUser(int id, String password){
@@ -53,6 +56,7 @@ public class UserService implements UserDetailsService {
 
    public int verifyCredentials(String email, String password){
       int id = userRepository.findUserByEmailAndPassword(email, password);
+      if(id == -1) throw new ResourceNotFoundException("User not found");
         return id;
     }
 

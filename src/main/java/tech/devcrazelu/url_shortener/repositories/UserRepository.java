@@ -5,6 +5,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import tech.devcrazelu.url_shortener.models.AppUser;
 import java.sql.*;
+import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -92,7 +93,7 @@ public class UserRepository {
       return userId;
   }
 
-    public AppUser getUserById(int id){
+    public Optional<AppUser> getUserById(int id){
         AppUser user = null;
         Connection connection = null;
         PreparedStatement ps = null;
@@ -125,7 +126,7 @@ public class UserRepository {
             Logger.getAnonymousLogger().log(Level.WARNING, e.getMessage());
         }
     }
-        return user;
+        return Optional.ofNullable(user);
     }
 
     public boolean deleteUser(int id){
@@ -196,8 +197,7 @@ public class UserRepository {
         return updated;
     }
 
-
-    public AppUser findUserByEmail(String email){
+    public Optional<AppUser> findUserByEmail(String email){
         AppUser user = null;
         Connection connection = null;
         PreparedStatement ps = null;
@@ -230,6 +230,6 @@ public class UserRepository {
                 Logger.getAnonymousLogger().log(Level.WARNING, e.getMessage());
             }
         }
-        return user;
+        return Optional.ofNullable(user);
     }
 }
