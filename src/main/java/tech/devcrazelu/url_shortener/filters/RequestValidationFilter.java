@@ -9,12 +9,9 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.Part;
 import java.io.IOException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.HashMap;
 
 @Component
 public class RequestValidationFilter extends OncePerRequestFilter {
@@ -22,9 +19,7 @@ public class RequestValidationFilter extends OncePerRequestFilter {
     private String[] unAuthenticatedPaths;
 
     public RequestValidationFilter(){
-        unAuthenticatedPaths = new String[]{
-                "/createAccount", "/login", "/{shortUrl}"
-        };
+        unAuthenticatedPaths = new String[]{"/createAccount", "/login", "/{shortUrl}"};
         validURIPaths = new HashMap<>();
         validURIPaths.put("/getShortUrls", "GET");
         validURIPaths.put("/getLongUrl", "GET");
@@ -67,10 +62,6 @@ public class RequestValidationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-
-        Logger.getAnonymousLogger().log(Level.INFO, request.getRequestURI());
-        Logger.getAnonymousLogger().log(Level.INFO, request.getMethod());
-
         checkForAuthorizationHeader(request);
         validatePathWithMatch("/deleteShortUrl","(/deleteShortUrl/)(.{7})", request );
         validatePathWithMatch("/getLongUrl","(/getLongUrl/)(.{7})", request );
@@ -79,6 +70,4 @@ public class RequestValidationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
-
 }

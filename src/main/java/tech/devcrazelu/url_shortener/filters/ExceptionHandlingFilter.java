@@ -44,7 +44,7 @@ public class ExceptionHandlingFilter extends OncePerRequestFilter {
         try {
             response.getWriter().write(convertObjectToJson(error));
         } catch (IOException e) {
-            e.printStackTrace();
+          Logger.getAnonymousLogger().log(Level.WARNING, e.getMessage());
         }
     }
 

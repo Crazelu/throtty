@@ -204,15 +204,14 @@ public class UserRepository {
 
         try{
             connection = DriverManager.getConnection(url);
-            final String query = "select id, password from `users` where email = ?";
+            final String query = "select id from `users` where email = ?";
             ps = connection.prepareStatement(query);
             ps.setString(1, email);
             ResultSet result = ps.executeQuery();
 
             while(result.next()){
                 int id = result.getInt("id");
-                String password = result.getString("password");
-                user = new AppUser(id, email, password);
+                user = new AppUser(id, email);
             }
 
         } catch(Exception e){

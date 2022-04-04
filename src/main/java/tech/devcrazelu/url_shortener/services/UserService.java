@@ -34,7 +34,7 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
-    private AppUser findUserByEmail(String email){
+    public AppUser findUserByEmail(String email){
         return userRepository.findUserByEmail(email).orElseThrow(()-> new ResourceNotFoundException("User not found"));
     }
 
@@ -56,7 +56,7 @@ public class UserService implements UserDetailsService {
 
    public int verifyCredentials(String email, String password){
       int id = userRepository.findUserByEmailAndPassword(email, password);
-      if(id == -1) throw new ResourceNotFoundException("User not found");
+      if(id == -1) throw new ResourceNotFoundException("Invalid credentials");
         return id;
     }
 

@@ -1,6 +1,8 @@
 package tech.devcrazelu.url_shortener.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 import tech.devcrazelu.url_shortener.models.ShortenedUrl;
@@ -32,31 +34,33 @@ public class UrlController {
     }
 
     @GetMapping("getLongUrl/{shortUrl}")
-    public ApiResponse getShortUrl(@PathVariable String shortUrl){
+    public ResponseEntity<ApiResponse> getShortUrl(@PathVariable String shortUrl){
             String longUrl = urlService.getLongUrl(shortUrl);
-            if (longUrl != null) return new ApiResponse(true, longUrl);
-            return new ApiResponse("Invalid short url");
+            if (longUrl != null) return new ResponseEntity(new ApiResponse(true, longUrl), HttpStatus.OK);
+        return new ResponseEntity(new ApiResponse("Invalid short url"), HttpStatus.NOT_FOUND);
     }
 
     @PostMapping("/createShortUrl")
-    public ApiResponse createShortUrl(@RequestBody CreateShortUrlRequest request){
+    public ResponseEntity<ApiResponse> createShortUrl(@RequestBody CreateShortUrlRequest request){
         int userId = authUtil.getAuthenticatedUserId();
         String shortUrl = urlService.createShortUrl(request.longUrl, userId);
-        if (shortUrl != null) return new ApiResponse(true, shortUrl);
-        return new ApiResponse("Unable to shorten " + request.longUrl);
+        if (shortUrl != null) return new ResponseEntity(new ApiResponse(true, shortUrl), HttpStatus.CREATED);
+        return new ResponseEntity(new ApiResponse("Unable to shorten " + request.longUrl), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @GetMapping("/getShortUrls")
-    public ApiResponse getShortenedUrlsForUser(){
+    public ResponseEntity<ApiResponse> getShortenedUrlsForUser(){
         int userId = authUtil.getAuthenticatedUserId();
         List<ShortenedUrl> shortenedUrls = urlService.getShortenedUrls(userId);
-        if (shortenedUrls != null) return new ApiResponse(true, shortenedUrls);
-        return new ApiResponse("Unable to retrieve your short urls");
+        if (shortenedUrls != null) return new ResponseEntity(new ApiResponse(true, shortenedUrls), HttpStatus.OK);
+       return new ResponseEntity(new ApiResponse("Unable to retrieve your short urls"), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @DeleteMapping("/deleteShortUrl/{shortUrl}")
-    public ApiResponse deleteShortUrl(@PathVariable String shortUrl){
+    public ResponseEntity<ApiResponse> deleteShortUrl(@PathVariable String shortUrl){
         boolean deleted = urlService.deleteShortUrl(shortUrl);
-        return new ApiResponse(deleted, null, deleted ? "Short url deleted": "Unable to delete short url");
+        if(deleted) return new ResponseEntity(new ApiResponse(true, null, "Short url deleted"), HttpStatus.OK);
+        return new ResponseEntity(new ApiResponse("Unable to delete short url"), HttpStatus.INTERNAL_SERVER_ERROR);
+
     }
 }
