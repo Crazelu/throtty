@@ -42,7 +42,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()
                 .authorizeRequests().antMatchers("/createAccount").permitAll()
+                .antMatchers("/createAccount/**/{email}").permitAll()
                 .antMatchers("/login").permitAll()
+                .antMatchers("/login/**/{email}").permitAll()
                 .antMatchers("/{shortUrl}").permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement()

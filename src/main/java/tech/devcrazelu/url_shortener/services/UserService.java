@@ -11,6 +11,7 @@ import tech.devcrazelu.url_shortener.exceptions.ResourceCreationException;
 import tech.devcrazelu.url_shortener.exceptions.ResourceNotFoundException;
 import tech.devcrazelu.url_shortener.models.AppUser;
 import tech.devcrazelu.url_shortener.repositories.UserRepository;
+
 import java.util.ArrayList;
 
 @Service
@@ -26,6 +27,15 @@ public class UserService implements UserDetailsService {
         return encoder.encode(password);
     }
 
+    public AppUser createUserForOAuth(String email, String password){
+        String hashedPassword =encodePassword(password);
+        AppUser user = new AppUser(email, hashedPassword);
+        user.setRegisteredFromOAuth(true);
+        boolean created =  userRepository.createUser(user);
+        if(!created) throw new ResourceCreationException("Account creation failed");
+        return user;
+    }
+
     public AppUser createUser(String email, String password){
         String hashedPassword =encodePassword(password);
         AppUser user = new AppUser(email, hashedPassword);
@@ -35,11 +45,11 @@ public class UserService implements UserDetailsService {
     }
 
     public AppUser findUserByEmail(String email){
-        return userRepository.findUserByEmail(email).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+        return userRepository.findUserByEmail(email).orElseThrow(()-> new ResourceNotFoundException("Account not found"));
     }
 
     public AppUser getUser(int id){
-        return userRepository.getUserById(id).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+        return userRepository.getUserById(id).orElseThrow(()-> new ResourceNotFoundException("Account not found"));
     }
 
   public boolean updateUser(int id, String password){
@@ -53,6 +63,7 @@ public class UserService implements UserDetailsService {
   public  boolean deleteUser(int id){
        return userRepository.deleteUser(id);
     }
+
 
    public int verifyCredentials(String email, String password){
       int id = userRepository.findUserByEmailAndPassword(email, password);

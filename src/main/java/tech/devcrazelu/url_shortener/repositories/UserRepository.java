@@ -21,12 +21,14 @@ public class UserRepository {
 
         try{
             connection = DriverManager.getConnection(url);
-           final String query = "insert into users (email, password) values (?, ?)";
+           final String query = "insert into users (email, password, verified, fromOAuth) values (?, ?, ?, ?)";
 
            ps = connection.prepareStatement(query);
 
            ps.setString(1,user.getEmail());
            ps.setString(2,user.getPassword());
+           ps.setBoolean(3, false);
+           ps.setBoolean(4, user.isRegisteredFromOAuth());
 
           ps.execute();
          created = ps.getUpdateCount() == 1;
@@ -204,14 +206,16 @@ public class UserRepository {
 
         try{
             connection = DriverManager.getConnection(url);
-            final String query = "select id from `users` where email = ?";
+            final String query = "select id, fromOAuth, verified from `users` where email = ?";
             ps = connection.prepareStatement(query);
             ps.setString(1, email);
             ResultSet result = ps.executeQuery();
 
             while(result.next()){
                 int id = result.getInt("id");
-                user = new AppUser(id, email);
+                boolean fromOAuth = result.getBoolean("fromOAuth");
+                boolean verified = result.getBoolean("verified");
+                user = new AppUser(id, email, verified, fromOAuth);
             }
 
         } catch(Exception e){

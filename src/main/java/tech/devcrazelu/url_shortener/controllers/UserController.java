@@ -1,6 +1,7 @@
 package tech.devcrazelu.url_shortener.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +31,9 @@ public class UserController {
     @Autowired
     private RequestValidator validator;
 
+    @Value("${oauth.password}")
+    private String oauthPassword;
+
 
     @PostMapping("/createAccount")
     public ResponseEntity<ApiResponse> createAccount(@RequestBody AuthRequest request){
@@ -47,12 +51,30 @@ public class UserController {
         return new ResponseEntity(new ApiResponse("Email is already taken"), HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
+    @PostMapping("/createAccount/oauth/{email}")
+    public ResponseEntity<ApiResponse> createAccountForOAuth(@PathVariable String email){
+        validator.validateEmail(email);
+        try{
+            userService.findUserByEmail(email);
+        }catch(ResourceNotFoundException exception){
+            AppUser user = userService.createUserForOAuth(email, oauthPassword);
+            String token = jwtUtil.generateToken(String.valueOf(user.getId()));
+            if(user != null ){
+                return new ResponseEntity(new ApiResponse(true, token,"Login to continue"), HttpStatus.CREATED);
+            }
+            return new ResponseEntity(new ApiResponse("Account creation failed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity(new ApiResponse("Email is already taken"), HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(@RequestBody AuthRequest request){
         validator.validateAuthRequest(request);
+        AppUser user = null;
 
         try{
-            userService.findUserByEmail(request.email);
+            user = userService.findUserByEmail(request.email);
+            if(user.isRegisteredFromOAuth())  return new ResponseEntity(new ApiResponse("This account was registered with Google. Log in with Google"),HttpStatus.FORBIDDEN);
         }catch(Exception e){
             return new ResponseEntity(new ApiResponse("Account not registered"),HttpStatus.FORBIDDEN);
         }
@@ -61,6 +83,33 @@ public class UserController {
 
         try{
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(String.valueOf(id), request.password));
+        }catch(Exception e){
+            return new ResponseEntity(new ApiResponse(e.getMessage()), HttpStatus.NOT_FOUND);
+        }
+
+        String token = jwtUtil.generateToken(String.valueOf(id));
+        if(id != -1 && token != null){
+            return new ResponseEntity(new ApiResponse(true, token), HttpStatus.OK);
+        }
+        return new ResponseEntity(new ApiResponse("Invalid credentials"),HttpStatus.FORBIDDEN);
+    }
+
+    @PostMapping("/login/oauth/{email}")
+    public ResponseEntity<ApiResponse> loginForOAuth(@PathVariable String email){
+        validator.validateEmail(email);
+        AppUser user = null;
+
+        try{
+            user = userService.findUserByEmail(email);
+            if(!user.isRegisteredFromOAuth())  return new ResponseEntity(new ApiResponse("This account was registered with password. Login with password"),HttpStatus.FORBIDDEN);
+        }catch(Exception e){
+            return new ResponseEntity(new ApiResponse("Account not registered"),HttpStatus.FORBIDDEN);
+        }
+
+        int id =  userService.verifyCredentials(email, oauthPassword);
+
+        try{
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(String.valueOf(id), oauthPassword));
         }catch(Exception e){
             return new ResponseEntity(new ApiResponse(e.getMessage()), HttpStatus.NOT_FOUND);
         }
