@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<ApiResponse> handleApiException(ApiException exception){
         ApiResponse response = new ApiResponse(exception.getMessage());
-        return new ResponseEntity(response, HttpStatus.NOT_FOUND);
+        return new ResponseEntity(response, exception.getStatus());
     }
 
     @ExceptionHandler(AuthorizationException.class)

@@ -10,6 +10,8 @@ import tech.devcrazelu.url_shortener.models.requests.CreateShortUrlRequest;
 import tech.devcrazelu.url_shortener.models.responses.ApiResponse;
 import tech.devcrazelu.url_shortener.services.UrlService;
 import tech.devcrazelu.url_shortener.utils.AuthUtil;
+import tech.devcrazelu.url_shortener.validators.RequestValidator;
+
 import java.util.List;
 
 @RestController
@@ -19,6 +21,8 @@ public class UrlController {
     private UrlService urlService;
     @Autowired
     private AuthUtil authUtil;
+    @Autowired
+    private RequestValidator validator;
 
     @GetMapping("/{shortUrl}")
     public RedirectView redirectToLongUrl(@PathVariable String shortUrl){
@@ -42,8 +46,9 @@ public class UrlController {
 
     @PostMapping("/createShortUrl")
     public ResponseEntity<ApiResponse> createShortUrl(@RequestBody CreateShortUrlRequest request){
+        validator.validateCreateShortUrlRequest(request);
         int userId = authUtil.getAuthenticatedUserId();
-        String shortUrl = urlService.createShortUrl(request.longUrl, userId);
+        String shortUrl = urlService.createShortUrl(request.longUrl, userId, request.shortUrl);
         if (shortUrl != null) return new ResponseEntity(new ApiResponse(true, shortUrl), HttpStatus.CREATED);
         return new ResponseEntity(new ApiResponse("Unable to shorten " + request.longUrl), HttpStatus.INTERNAL_SERVER_ERROR);
     }

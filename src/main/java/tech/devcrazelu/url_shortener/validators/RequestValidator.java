@@ -4,10 +4,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import tech.devcrazelu.url_shortener.exceptions.ApiException;
 import tech.devcrazelu.url_shortener.models.requests.AuthRequest;
+import tech.devcrazelu.url_shortener.models.requests.CreateShortUrlRequest;
 import tech.devcrazelu.url_shortener.models.requests.ResetPasswordRequest;
 
 @Service
 public class RequestValidator {
+
+    private void validateNotEmpty(String param, String paramName){
+        if(param == null || param.isEmpty()) throw new ApiException(HttpStatus.BAD_REQUEST, paramName+" is not provided");
+    }
 
     public void validateAuthRequest(AuthRequest request){
         validateEmail(request.email);
@@ -15,13 +20,13 @@ public class RequestValidator {
     }
 
     public void validateEmail(String email){
-        if(email == null || email.isEmpty()) throw new ApiException(HttpStatus.BAD_REQUEST, "Email is not provided");
+        validateNotEmpty(email, "Email");
         String emailRegex = "^[\\w!#$%&'*+/=?`{|}~^-]+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
         if(!email.matches(emailRegex)) throw new ApiException(HttpStatus.BAD_REQUEST, "Invalid email");
     }
 
     private void validatePassword(String password){
-        if(password == null || password.isEmpty()) throw new ApiException(HttpStatus.BAD_REQUEST, "Password is not provided");
+        validateNotEmpty(password, "Password");
         if(password.length() <8)  throw new ApiException(HttpStatus.UNPROCESSABLE_ENTITY, "Password must contain at least 8 characters");
 
     }
@@ -40,5 +45,10 @@ public class RequestValidator {
         validateEmail(request.email);
         validateOTP(String.valueOf(request.otp));
         validatePassword(request.password);
+    }
+
+    public void validateCreateShortUrlRequest(CreateShortUrlRequest request){
+       validateNotEmpty(request.longUrl, "Link");
+       if(request.shortUrl!= null) validateNotEmpty(request.shortUrl, "Short URL");
     }
 }

@@ -2,6 +2,7 @@ package tech.devcrazelu.url_shortener.repositories;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
+import tech.devcrazelu.url_shortener.exceptions.ResourceCreationException;
 import tech.devcrazelu.url_shortener.models.ShortenedUrl;
 import java.sql.*;
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ public class UrlRepository {
 
         }catch(Exception e){
             Logger.getAnonymousLogger().log(Level.WARNING, e.getMessage());
+            Logger.getAnonymousLogger().log(Level.WARNING, e.getClass().getTypeName());
+            if(e.getClass().getTypeName().equals("com.mysql.cj.jdbc.exceptions.MysqlDataTruncation")) throw new ResourceCreationException("Short URL cannot be more than 20 characters long");
         }finally {
             if (ps != null) {
                 try {

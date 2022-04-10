@@ -14,19 +14,18 @@ public class UrlService {
     @Autowired
     private UrlRepository urlRepository;
 
-    public String createShortUrl(String longUrl, int userId){
+    public String createShortUrl(String longUrl, int userId, String shortUrl){
         if(longUrl.isEmpty())return null;
 
         boolean created = false;
-        String shortUrl = null;
         int tries = 10;
 
         while(!created && tries>0){
-             shortUrl = shortenUrl();
+            if(shortUrl == null) shortUrl = randomShortUrl();
             created = urlRepository.createShortUrl(shortUrl, longUrl, userId);
             tries--;
         }
-        return shortUrl;
+        return created ? shortUrl: null;
     }
 
    public String getLongUrl(String shortUrl){
@@ -57,7 +56,7 @@ public class UrlService {
          return shuffledString;
     }
 
-    private String shortenUrl(){
+    private String randomShortUrl(){
        long curr = System.currentTimeMillis();
         String result = "";
         final String set = getCharacterSet();

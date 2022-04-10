@@ -6,12 +6,6 @@ public class ApiException extends RuntimeException{
    private HttpStatus status;
    private String message;
 
-    public ApiException(String message){
-        super(message);
-        this.message = message;
-        this.status = HttpStatus.UNAUTHORIZED;
-    }
-
     public HttpStatus getStatus() {
         return status;
     }
@@ -24,12 +18,6 @@ public class ApiException extends RuntimeException{
     public ApiException(HttpStatus status, String message){
         super(message);
         this.message = message;
-        this.status = status;
-    }
-
-    public ApiException(HttpStatus status, Throwable exception){
-        super(exception.getMessage());
-        this.message = exception.getMessage();
         this.status = status;
     }
 }
