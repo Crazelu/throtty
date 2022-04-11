@@ -11,7 +11,6 @@ import tech.devcrazelu.url_shortener.models.responses.ApiResponse;
 import tech.devcrazelu.url_shortener.services.UrlService;
 import tech.devcrazelu.url_shortener.utils.AuthUtil;
 import tech.devcrazelu.url_shortener.validators.RequestValidator;
-
 import java.util.List;
 
 @RestController
@@ -35,6 +34,13 @@ public class UrlController {
         }
         //todo: redirect to a 404 page
         return redirectView;
+    }
+
+    @PostMapping("lookup/{shortUrl}")
+    public ResponseEntity<ApiResponse> lookupShortUrl(@PathVariable String shortUrl){
+        String longUrl = urlService.getLongUrl(shortUrl);
+        if (longUrl != null) return new ResponseEntity(new ApiResponse("Short URL taken"), HttpStatus.OK);
+        return new ResponseEntity(new ApiResponse(true, null, "Short URL available"), HttpStatus.OK);
     }
 
     @GetMapping("getLongUrl/{shortUrl}")

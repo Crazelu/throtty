@@ -29,6 +29,7 @@ public class RequestValidationFilter extends OncePerRequestFilter {
         validURIPaths = new HashMap<>();
         validURIPaths.put("/getShortUrls", "GET");
         validURIPaths.put("/getLongUrl", "GET");
+        validURIPaths.put("/lookup", "POST");
         validURIPaths.put("/user", "GET");
         validURIPaths.put("/createShortUrl", "POST");
         validURIPaths.put("/deleteShortUrl", "DELETE");
@@ -69,8 +70,9 @@ public class RequestValidationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         checkForAuthorizationHeader(request);
-        validatePathWithMatch("/deleteShortUrl","(/deleteShortUrl/)(.{7})", request );
-        validatePathWithMatch("/getLongUrl","(/getLongUrl/)(.{7})", request );
+        validatePathWithMatch("/deleteShortUrl","(/deleteShortUrl/)(.*)", request );
+        validatePathWithMatch("/getLongUrl","(/getLongUrl/)(.*)", request );
+        validatePathWithMatch("/lookup","(/lookup/)(.*)", request );
         validatePathWithMatch("/user","(/user)", request );
         validatePathWithMatch("/deleteUser","(/deleteUser)", request );
 
