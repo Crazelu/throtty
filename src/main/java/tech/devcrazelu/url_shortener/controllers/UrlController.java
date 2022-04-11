@@ -8,6 +8,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import tech.devcrazelu.url_shortener.models.ShortenedUrl;
 import tech.devcrazelu.url_shortener.models.requests.CreateShortUrlRequest;
 import tech.devcrazelu.url_shortener.models.responses.ApiResponse;
+import tech.devcrazelu.url_shortener.services.ClickDetailService;
 import tech.devcrazelu.url_shortener.services.UrlService;
 import tech.devcrazelu.url_shortener.utils.AuthUtil;
 import tech.devcrazelu.url_shortener.validators.RequestValidator;
@@ -18,6 +19,8 @@ public class UrlController {
 
     @Autowired
     private UrlService urlService;
+    @Autowired
+    private ClickDetailService clickDetailService;
     @Autowired
     private AuthUtil authUtil;
     @Autowired
@@ -31,6 +34,7 @@ public class UrlController {
              redirectView = new RedirectView();
             redirectView.setUrl(longUrl);
             urlService.updateClickCount(shortUrl);
+            clickDetailService.updateClickDetail(shortUrl);
         }
         //todo: redirect to a 404 page
         return redirectView;
