@@ -1,10 +1,13 @@
 package tech.devcrazelu.url_shortener.filters;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import tech.devcrazelu.url_shortener.exceptions.ApiException;
 import tech.devcrazelu.url_shortener.exceptions.AuthorizationException;
+import tech.devcrazelu.url_shortener.utils.IPUtil;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +20,9 @@ import java.util.HashMap;
 public class RequestValidationFilter extends OncePerRequestFilter {
     private HashMap<String, String> validURIPaths ;
     private String[] unAuthenticatedPaths;
+
+    @Autowired
+    IPUtil ipUtil;
 
     public RequestValidationFilter(){
         unAuthenticatedPaths = new String[]{"/createAccount", "/login", "/{shortUrl}"};
@@ -68,6 +74,7 @@ public class RequestValidationFilter extends OncePerRequestFilter {
         validatePathWithMatch("/user","(/user)", request );
         validatePathWithMatch("/deleteUser","(/deleteUser)", request );
 
+        ipUtil.setIpAddress(request);
         filterChain.doFilter(request, response);
     }
 }

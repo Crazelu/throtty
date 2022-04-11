@@ -4,15 +4,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tech.devcrazelu.url_shortener.models.ShortenedUrl;
 import tech.devcrazelu.url_shortener.repositories.UrlRepository;
+import tech.devcrazelu.url_shortener.utils.IPUtil;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class UrlService {
 
     @Autowired
     private UrlRepository urlRepository;
+    @Autowired
+    IPUtil ipUtil;
 
     public String createShortUrl(String longUrl, int userId, String shortUrl){
         if(longUrl.isEmpty())return null;
@@ -41,6 +47,7 @@ public class UrlService {
     }
 
     public void updateClickCount(String shortUrl){
+        Logger.getAnonymousLogger().log(Level.WARNING, ipUtil.getIp());
         urlRepository.updateClickCount(shortUrl);
     }
 
